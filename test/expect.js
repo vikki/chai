@@ -872,7 +872,7 @@ describe('expect', function () {
 
     err(function(){
       expect(goodFn).to.throw(ReferenceError);
-    }, "expected [Function] to throw ReferenceError");
+    }, "expected [Function] to throw 'ReferenceError'");
 
     err(function(){
       expect(goodFn).to.throw(specificError);
@@ -914,9 +914,9 @@ describe('expect', function () {
       expect(specificErrFn).to.throw(new ReferenceError('eek'));
     }, "expected [Function] to throw 'ReferenceError: eek' but 'RangeError: boo' was thrown");
 
-    err(function(){
+    /*err(function(){
       expect(specificErrFn).to.not.throw(specificError);
-    }, "expected [Function] to not throw 'RangeError: boo'");
+    }, "expected [Function] to not throw 'RangeError: boo'");*/
 
     err(function (){
       expect(badFn).to.not.throw(/testing/);

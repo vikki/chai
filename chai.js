@@ -1546,15 +1546,15 @@ module.exports = function (chai, _) {
           expected = 'an error';
         }
 
+        //console.log(foundError.failType, foundError.expected, expected);
+
         if (options.negate) {
           typesToErrorMessages = {
               'differentErrorInstance':   'expected #{this} to ' + extra + 'throw '+expected + moreInfo
             , 'differentErrorType':       'expected #{this} to ' + extra + 'throw '+expected + moreInfo
             , 'errorMessageDoesNotMatch': 'expected #{this} to throw error ' + extra + 'matching #{exp}'
             , 'errorMessageDoesInclude':  'expected #{this} to throw error ' + extra + 'including #{exp}'
-            , 'noErrorThrown':            'expected #{this} to throw an error'
-            , 'noErrorThrown-name':       'expected #{this} to throw ' + foundError.expected
-            , 'noErrorThrown-desiredError': 'expected #{this} to throw #{exp}'
+            , 'noErrorThrown':            'expected #{this} to throw ' + expected
           };
         } else {
             typesToErrorMessages = {
@@ -1562,9 +1562,7 @@ module.exports = function (chai, _) {
             , 'differentErrorType':       'expected #{this} to ' + extra + 'throw '+expected + moreInfo
             , 'errorMessageDoesNotMatch': 'expected #{this} to throw error ' + extra + 'matching #{exp}' + moreInfo
             , 'errorMessageDoesInclude':  'expected #{this} to throw error ' + extra + 'including #{exp}' + moreInfo
-            , 'noErrorThrown':            'expected #{this} to throw an error'
-            , 'noErrorThrown-name':       'expected #{this} to throw ' + foundError.expected
-            , 'noErrorThrown-desiredError': 'expected #{this} to throw #{exp}'
+            , 'noErrorThrown':            'expected #{this} to throw ' + expected
           };
 
         }
@@ -3581,7 +3579,7 @@ module.exports = function checkError (err, assertionargs) {
 
 		  if ((message != null) && errMsg && errMsg instanceof RegExp) {
 		    foundErrors.push({
-		        result: errMsg.exec(message)
+		        result: errMsg.exec(message) != null
 		      , failType: 'errorMessageDoesNotMatch'
 		      , expected: errMsg
 		      , actual: message
@@ -3590,8 +3588,9 @@ module.exports = function checkError (err, assertionargs) {
 
 		    return foundErrors;
 		  } else if ((message != null) && errMsg && 'string' === typeof errMsg) {
+
 		    foundErrors.push({
-		        result: ~message.indexOf(errMsg)
+		        result: !!(~message.indexOf(errMsg))
 		      , failType: 'errorMessageDoesInclude'
 		      , expected: errMsg
 		      , actual: message
@@ -3610,18 +3609,12 @@ module.exports = function checkError (err, assertionargs) {
 	  , expected: desiredError
 	  , actual: err
 	  , nextObject: thrownError
-	}
-
-	if (name !== null) {
-		myError.failType = 'noErrorThrown-name';
-	 } else if (!!desiredError) {
-		myError.failType = 'noErrorThrown-desiredError';
-	 } else {
-		myError.failType = 'noErrorThrown';
-	 }
+	};
 
 	if (thrown) {
 	  myError.failType =  'differentErrorInstance'
+	} else {
+	  myError.failType = 'noErrorThrown';
 	}
 
 	if (!desiredError) {
