@@ -1524,7 +1524,7 @@ module.exports = function (chai, _) {
         var extra = ''
           , typesToErrorMessages
           , moreInfo = ''
-          , expected ;
+          , expected;
 
         if (options.negate) {
             extra = 'not ';
@@ -1535,8 +1535,8 @@ module.exports = function (chai, _) {
               moreInfo = ' but got #{act}';
           }
 
-          if (foundError.failType === 'differentErrorInstance' || foundError.failType === 'differentErrorType') {
-                moreInfo = ' but #{act} was thrown';
+          if ((foundError.failType === 'differentErrorInstance' || foundError.failType === 'differentErrorType') && (foundError.actual !== foundError.expected)) {
+              moreInfo = ' but #{act} was thrown';
           }
         }
 
@@ -1546,15 +1546,13 @@ module.exports = function (chai, _) {
           expected = 'an error';
         }
 
-        //console.log(foundError.failType, foundError.expected, expected);
-
         if (options.negate) {
           typesToErrorMessages = {
               'differentErrorInstance':   'expected #{this} to ' + extra + 'throw '+expected + moreInfo
             , 'differentErrorType':       'expected #{this} to ' + extra + 'throw '+expected + moreInfo
             , 'errorMessageDoesNotMatch': 'expected #{this} to throw error ' + extra + 'matching #{exp}'
             , 'errorMessageDoesInclude':  'expected #{this} to throw error ' + extra + 'including #{exp}'
-            , 'noErrorThrown':            'expected #{this} to throw ' + expected
+            , 'noErrorThrown':            'expected #{this} to throw ' + expected + moreInfo
           };
         } else {
             typesToErrorMessages = {
@@ -3489,7 +3487,7 @@ module.exports = function (ctx, name, getter) {
 
 },{}],12:[function(require,module,exports){
 /*!
- * Chai - addProperty utility
+ * Chai - checkError utility
  * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
  * MIT Licensed
  */
@@ -3497,12 +3495,26 @@ module.exports = function (ctx, name, getter) {
 /**
  * ### checkError (err, assertionargs)
  *
- * Checks that an error conforms to a given set of criteria
+ * Checks that an error conforms to a given set of criteria.
+ * Returns whether the error matches, as well as details of a failed match.
+ * Result is an object containing :
+ *   - result : did it match
+ *   - failType : why it didn't match : one of the following :
+ *		differentErrorInstance : error isn't the same instance as was requested
+ *		differentErrorType : error is of a different type to the one requested
+ * 		errorMessageDoesNotMatch : error message does not match of the given regex
+ *		errorMessageDoesInclude : error message does not include (i.e. is not a substring) of the given string
+ *		noErrorThrown : no error was provided
+ *   - expected : expected error
+ *   - actual : actual error
+ *   - nextObject: next object to be flagged
  *
- * TBC
  *
  * @param {Error} error value to be checked
- * @param {Object} name of property to add
+ * @param {Object} properties to check on the error:
+ * has properties :
+ *   - constructor : either the error instance or the constructor of the desired error
+ *   - errMsg : either a substring or a regex that the error message should match
  * @name checkError
  * @api public
  */
